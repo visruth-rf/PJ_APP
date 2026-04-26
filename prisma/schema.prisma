@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+}
+
+model Customer {
+  id           String        @id @default(uuid())
+  customerId   String        @unique
+  phone        String        @unique
+  name         String
+  address      String?
+  notes        String?
+  autoReminder Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  credits      Credit[]
+  payments     Payment[]
+  reminders    ReminderLog[]
+
+  @@index([phone])
+  @@index([customerId])
+}
+
+model Credit {
+  id          String   @id @default(uuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  amount      Int
+  description String
+  creditDate  DateTime
+  createdAt   DateTime @default(now())
+  createdBy   String
+
+  @@index([customerId, creditDate])
+}
+
+model Payment {
+  id          String      @id @default(uuid())
+  customerId  String
+  customer    Customer    @relation(fields: [customerId], references: [id])
+  amount      Int
+  paymentMode PaymentMode
+  paymentDate DateTime
+  note        String?
+  createdAt   DateTime    @default(now())
+  createdBy   String
+
+  @@index([customerId, paymentDate])
+}
+
+enum PaymentMode {
+  CASH
+  UPI
+  BANK_TRANSFER
+  CHEQUE
+}
+
+model ReminderLog {
+  id            String   @id @default(uuid())
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id])
+  sentAt        DateTime @default(now())
+  message       String
+  balanceAtSend Int
+}
