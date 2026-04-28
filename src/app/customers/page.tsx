@@ -1,8 +1,8 @@
-export default function CustomersPage() {
-  return (
-    <main className="p-6">
-      <h1 className="text-2xl font-semibold">Customers</h1>
-      <p className="mt-2 text-sm text-slate-600">Customers list placeholder for Milestone 1.</p>
-    </main>
-  );
+import { CustomersPageClient } from "@/features/customers/components/customers-page-client";
+import { requireUser } from "@/lib/session";
+
+export default async function CustomersPage() {
+  await requireUser();
+
+  return <CustomersPageClient />;
 }
